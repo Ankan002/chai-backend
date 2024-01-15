@@ -6,7 +6,35 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 
 const toggleVideoLike = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
-  //TODO: toggle like on video
+
+  const { _id } = req.user;
+
+  if (!isValidObjectId(videoId)) {
+    throw new ApiError(400, "Provide a valid ObjectID as videoId", [
+      "Provide a valid ObjectID as videoId",
+    ]);
+  }
+
+  const deletedLike = await Like.findOneAndDelete({
+    video: videoId,
+    likedBy: _id,
+  });
+
+  let createdLike;
+
+  if (!deletedLike) {
+    createdLike = await Like.create({
+      video: videoId,
+      likedBy: _id,
+    });
+  }
+
+  return res.status(200).json(
+    new ApiResponse(200, {
+      liked: !!(!deletedLike && createdLike),
+      createdLike,
+    })
+  );
 });
 
 const toggleCommentLike = asyncHandler(async (req, res) => {
@@ -44,7 +72,6 @@ const toggleCommentLike = asyncHandler(async (req, res) => {
 
 const toggleTweetLike = asyncHandler(async (req, res) => {
   const { tweetId } = req.params;
-  //TODO: toggle like on tweet
 
   const { _id } = req.user;
 
