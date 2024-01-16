@@ -69,6 +69,7 @@ const getChannelStats = asyncHandler(async (req, res) => {
               _id: 1,
               numberOfComments: 1,
               numberOfLikes: 1,
+              views: 1,
             },
           },
         ],
@@ -104,6 +105,9 @@ const getChannelStats = asyncHandler(async (req, res) => {
         },
         totalNumberOfLikes: {
           $sum: "$videos.numberOfLikes",
+        },
+        totalNumberOfViews: {
+          $sum: "videos.views",
         },
       },
     },
