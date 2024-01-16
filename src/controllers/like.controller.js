@@ -128,19 +128,6 @@ const getLikedVideos = asyncHandler(async (req, res) => {
         as: "video",
         pipeline: [
           {
-            $project: {
-              _id: 1,
-              videoFile: 1,
-              thumbnail: 1,
-              title: 1,
-              description: 1,
-              duration: 1,
-              views: 1,
-              isPublished: 1,
-              owner: 1,
-            },
-          },
-          {
             $lookup: {
               from: "users",
               foreignField: "_id",
@@ -185,6 +172,84 @@ const getLikedVideos = asyncHandler(async (req, res) => {
           },
           {
             $unset: ["liked_by"],
+          },
+          {
+            $project: {
+              _id: 1,
+              videoFile: {
+                $cond: {
+                  if: {
+                    $eq: ["$isPublished", true],
+                  },
+                  then: "$videoFile",
+                  else: "$$REMOVE",
+                },
+              },
+              thumbnail: {
+                $cond: {
+                  if: {
+                    $eq: ["$isPublished", true],
+                  },
+                  then: "$thumbnail",
+                  else: "$$REMOVE",
+                },
+              },
+              title: {
+                $cond: {
+                  if: {
+                    $eq: ["$isPublished", true],
+                  },
+                  then: "$title",
+                  else: "$$REMOVE",
+                },
+              },
+              description: {
+                $cond: {
+                  if: {
+                    $eq: ["$isPublished", true],
+                  },
+                  then: "$description",
+                  else: "$$REMOVE",
+                },
+              },
+              duration: {
+                $cond: {
+                  if: {
+                    $eq: ["$isPublished", true],
+                  },
+                  then: "$duration",
+                  else: "$$REMOVE",
+                },
+              },
+              views: {
+                $cond: {
+                  if: {
+                    $eq: ["$isPublished", true],
+                  },
+                  then: "$views",
+                  else: "$$REMOVE",
+                },
+              },
+              isPublished: 1,
+              owner: {
+                $cond: {
+                  if: {
+                    $eq: ["$isPublished", true],
+                  },
+                  then: "$owner",
+                  else: "$$REMOVE",
+                },
+              },
+              likes: {
+                $cond: {
+                  if: {
+                    $eq: ["$isPublished", true],
+                  },
+                  then: "$likes",
+                  else: "$$REMOVE",
+                },
+              },
+            },
           },
         ],
       },
