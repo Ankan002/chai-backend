@@ -179,7 +179,14 @@ const getLikedVideos = asyncHandler(async (req, res) => {
               videoFile: {
                 $cond: {
                   if: {
-                    $eq: ["$isPublished", true],
+                    $or: [
+                      {
+                        $eq: ["$isPublished", true],
+                      },
+                      {
+                        $eq: ["$owner._id", new Types.ObjectId(_id.toString())],
+                      },
+                    ],
                   },
                   then: "$videoFile",
                   else: "$$REMOVE",
@@ -188,7 +195,14 @@ const getLikedVideos = asyncHandler(async (req, res) => {
               thumbnail: {
                 $cond: {
                   if: {
-                    $eq: ["$isPublished", true],
+                    $or: [
+                      {
+                        $eq: ["$isPublished", true],
+                      },
+                      {
+                        $eq: ["$owner._id", new Types.ObjectId(_id.toString())],
+                      },
+                    ],
                   },
                   then: "$thumbnail",
                   else: "$$REMOVE",
@@ -197,7 +211,14 @@ const getLikedVideos = asyncHandler(async (req, res) => {
               title: {
                 $cond: {
                   if: {
-                    $eq: ["$isPublished", true],
+                    $or: [
+                      {
+                        $eq: ["$isPublished", true],
+                      },
+                      {
+                        $eq: ["$owner._id", new Types.ObjectId(_id.toString())],
+                      },
+                    ],
                   },
                   then: "$title",
                   else: "$$REMOVE",
@@ -206,7 +227,14 @@ const getLikedVideos = asyncHandler(async (req, res) => {
               description: {
                 $cond: {
                   if: {
-                    $eq: ["$isPublished", true],
+                    $or: [
+                      {
+                        $eq: ["$isPublished", true],
+                      },
+                      {
+                        $eq: ["$owner._id", new Types.ObjectId(_id.toString())],
+                      },
+                    ],
                   },
                   then: "$description",
                   else: "$$REMOVE",
@@ -215,7 +243,14 @@ const getLikedVideos = asyncHandler(async (req, res) => {
               duration: {
                 $cond: {
                   if: {
-                    $eq: ["$isPublished", true],
+                    $or: [
+                      {
+                        $eq: ["$isPublished", true],
+                      },
+                      {
+                        $eq: ["$owner._id", new Types.ObjectId(_id.toString())],
+                      },
+                    ],
                   },
                   then: "$duration",
                   else: "$$REMOVE",
@@ -224,7 +259,14 @@ const getLikedVideos = asyncHandler(async (req, res) => {
               views: {
                 $cond: {
                   if: {
-                    $eq: ["$isPublished", true],
+                    $or: [
+                      {
+                        $eq: ["$isPublished", true],
+                      },
+                      {
+                        $eq: ["$owner._id", new Types.ObjectId(_id.toString())],
+                      },
+                    ],
                   },
                   then: "$views",
                   else: "$$REMOVE",
@@ -234,7 +276,14 @@ const getLikedVideos = asyncHandler(async (req, res) => {
               owner: {
                 $cond: {
                   if: {
-                    $eq: ["$isPublished", true],
+                    $or: [
+                      {
+                        $eq: ["$isPublished", true],
+                      },
+                      {
+                        $eq: ["$owner._id", new Types.ObjectId(_id.toString())],
+                      },
+                    ],
                   },
                   then: "$owner",
                   else: "$$REMOVE",
@@ -243,7 +292,14 @@ const getLikedVideos = asyncHandler(async (req, res) => {
               likes: {
                 $cond: {
                   if: {
-                    $eq: ["$isPublished", true],
+                    $or: [
+                      {
+                        $eq: ["$isPublished", true],
+                      },
+                      {
+                        $eq: ["$owner._id", new Types.ObjectId(_id.toString())],
+                      },
+                    ],
                   },
                   then: "$likes",
                   else: "$$REMOVE",
