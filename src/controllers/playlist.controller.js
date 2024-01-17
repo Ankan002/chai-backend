@@ -186,6 +186,7 @@ const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
           owner: 1,
           createdAt: 1,
           updatedAt: 1,
+          __v: 1,
         },
       },
       {
@@ -209,7 +210,34 @@ const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
 
 const deletePlaylist = asyncHandler(async (req, res) => {
   const { playlistId } = req.params;
-  // TODO: delete playlist
+  const { _id } = req.user;
+
+  if (!isValidObjectId(playlistId)) {
+    throw new ApiError(400, "Provide valid ObjectID", [
+      "Provide valid ObjectID",
+    ]);
+  }
+
+  const deletedPlaylist = await Playlist.findOneAndDelete({
+    _id: playlistId,
+    owner: _id,
+  });
+
+  if (!deletedPlaylist) {
+    throw new ApiError(
+      404,
+      "Either the playlist does not exist or you do not have permission to perform this action",
+      [
+        "Either the playlist does not exist or you do not have permission to perform this action",
+      ]
+    );
+  }
+
+  return res.status(200).json(
+    new ApiResponse(200, {
+      deletedPlaylist,
+    })
+  );
 });
 
 const updatePlaylist = asyncHandler(async (req, res) => {
