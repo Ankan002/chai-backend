@@ -1,6 +1,9 @@
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { createPlaylistSchema } from "../schema/playlist.schema.js";
+import {
+  createPlaylistSchema,
+  updatePlaylistSchema,
+} from "../schema/playlist.schema.js";
 import { Playlist } from "../models/playlist.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { isValidObjectId, Types } from "mongoose";
@@ -242,8 +245,64 @@ const deletePlaylist = asyncHandler(async (req, res) => {
 
 const updatePlaylist = asyncHandler(async (req, res) => {
   const { playlistId } = req.params;
-  const { name, description } = req.body;
-  //TODO: update playlist
+  const { _id } = req.user;
+
+  if (!isValidObjectId(playlistId)) {
+    throw new ApiError(400, "Provide valid ObjectID", [
+      "Provide valid ObjectID",
+    ]);
+  }
+
+  const requestBodyValidationResult = updatePlaylistSchema.safeParse(req.body);
+
+  if (!requestBodyValidationResult.success) {
+    throw new ApiError(
+      400,
+      requestBodyValidationResult.error.errors[0]?.message ??
+        "Something went wrong",
+      requestBodyValidationResult.error.errors.map((e) => e.message)
+    );
+  }
+
+  const { name, description } = requestBodyValidationResult.data;
+
+  if (!name && !description) {
+    throw new ApiError(400, "Nothing to update", ["Nothing to update"]);
+  }
+
+  const updateObject = {};
+
+  updateObject["name"] = name?.trim();
+  updateObject["description"] = description?.trim();
+
+  const updatedPlaylist = await Playlist.findOneAndUpdate(
+    {
+      _id: playlistId,
+      owner: _id,
+    },
+    {
+      $set: updateObject,
+    },
+    {
+      new: true,
+    }
+  );
+
+  if (!updatedPlaylist) {
+    throw new ApiError(
+      404,
+      "Either the playlist does not exist or you do not have permission to perform this action",
+      [
+        "Either the playlist does not exist or you do not have permission to perform this action",
+      ]
+    );
+  }
+
+  return res.status(200).json(
+    new ApiResponse(200, {
+      updatedPlaylist,
+    })
+  );
 });
 
 export {
