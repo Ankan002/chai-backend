@@ -11,6 +11,8 @@ import {
 import { Video } from "../models/video.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { isValidObjectId, Types } from "mongoose";
+import { Comment } from "../models/comment.model.js";
+import { Like } from "../models/like.model.js";
 
 const getAllVideos = asyncHandler(async (req, res) => {
   const { page, limit, query, sortBy, sortType, userId } = req.query;
@@ -290,12 +292,34 @@ const deleteVideo = asyncHandler(async (req, res) => {
     owner: _id,
   });
 
+  const comments = await Comment.find({
+    video: videoId,
+  });
+
   if (!deletedVideo) {
     throw new ApiError(
       404,
       "Either this video does not exists or you do have access to perform the requested action on it."
     );
   }
+
+  const commentIds = comments.map((c) => c._id);
+
+  // ! This part can be optimized using concurrent handling or promise.allSettled.
+
+  await Comment.deleteMany({
+    video: videoId,
+  });
+
+  await Like.deleteMany({
+    video: videoId,
+  });
+
+  await Like.deleteMany({
+    comment: {
+      $in: commentIds,
+    },
+  });
 
   const thumbnailDeletionResult = await deleteFromCloudinary(
     deletedVideo.thumbnail,
