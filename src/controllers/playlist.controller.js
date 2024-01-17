@@ -116,7 +116,249 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
 
 const getPlaylistById = asyncHandler(async (req, res) => {
   const { playlistId } = req.params;
+  const { _id } = req.user;
   //TODO: get playlist by id
+
+  if (!isValidObjectId(playlistId)) {
+    throw new ApiError(400, "Provide valid ObjectID", [
+      "Provide valid ObjectID",
+    ]);
+  }
+
+  const playlist = await Playlist.aggregate([
+    {
+      $match: {
+        _id: new Types.ObjectId(playlistId),
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "owner",
+        foreignField: "_id",
+        as: "owner",
+        pipeline: [
+          {
+            $project: {
+              _id: 1,
+              fullName: 1,
+              username: 1,
+              avatar: 1,
+            },
+          },
+        ],
+      },
+    },
+    {
+      $lookup: {
+        from: "videos",
+        localField: "videos",
+        foreignField: "_id",
+        as: "foundVideos",
+        pipeline: [
+          {
+            $lookup: {
+              from: "likes",
+              localField: "_id",
+              foreignField: "video",
+              as: "likes",
+              pipeline: [
+                {
+                  $project: {
+                    _id: 1,
+                  },
+                },
+              ],
+            },
+          },
+          {
+            $lookup: {
+              from: "users",
+              localField: "owner",
+              foreignField: "_id",
+              as: "owner",
+              pipeline: [
+                {
+                  $project: {
+                    _id: 1,
+                    avatar: 1,
+                    username: 1,
+                    fullName: 1,
+                  },
+                },
+              ],
+            },
+          },
+          {
+            $addFields: {
+              owner: {
+                $first: "$owner",
+              },
+            },
+          },
+          {
+            $project: {
+              _id: 1,
+              thumbnail: {
+                $cond: {
+                  if: {
+                    $or: [
+                      {
+                        $eq: ["$isPublished", true],
+                      },
+                      {
+                        $eq: ["$owner", new Types.ObjectId(_id.toString())],
+                      },
+                    ],
+                  },
+                  then: "$thumbnail",
+                  else: "$$REMOVE",
+                },
+              },
+              title: {
+                $cond: {
+                  if: {
+                    $or: [
+                      {
+                        $eq: ["$isPublished", true],
+                      },
+                      {
+                        $eq: ["$owner", new Types.ObjectId(_id.toString())],
+                      },
+                    ],
+                  },
+                  then: "$title",
+                  else: "$$REMOVE",
+                },
+              },
+              description: {
+                $cond: {
+                  if: {
+                    $or: [
+                      {
+                        $eq: ["$isPublished", true],
+                      },
+                      {
+                        $eq: ["$owner", new Types.ObjectId(_id.toString())],
+                      },
+                    ],
+                  },
+                  then: "$description",
+                  else: "$$REMOVE",
+                },
+              },
+              duration: {
+                $cond: {
+                  if: {
+                    $or: [
+                      {
+                        $eq: ["$isPublished", true],
+                      },
+                      {
+                        $eq: ["$owner", new Types.ObjectId(_id.toString())],
+                      },
+                    ],
+                  },
+                  then: "$duration",
+                  else: "$$REMOVE",
+                },
+              },
+              views: {
+                $cond: {
+                  if: {
+                    $or: [
+                      {
+                        $eq: ["$isPublished", true],
+                      },
+                      {
+                        $eq: ["$owner", new Types.ObjectId(_id.toString())],
+                      },
+                    ],
+                  },
+                  then: "$views",
+                  else: "$$REMOVE",
+                },
+              },
+              owner: {
+                $cond: {
+                  if: {
+                    $or: [
+                      {
+                        $eq: ["$isPublished", true],
+                      },
+                      {
+                        $eq: ["$owner", new Types.ObjectId(_id.toString())],
+                      },
+                    ],
+                  },
+                  then: "$owner",
+                  else: "$$REMOVE",
+                },
+              },
+              numberOfLikes: {
+                $cond: {
+                  if: {
+                    $or: [
+                      {
+                        $eq: ["$isPublished", true],
+                      },
+                      {
+                        $eq: ["$owner", new Types.ObjectId(_id.toString())],
+                      },
+                    ],
+                  },
+                  then: {
+                    $size: "$likes",
+                  },
+                  else: "$$REMOVE",
+                },
+              },
+              isPublished: 1,
+            },
+          },
+          {
+            $unset: ["likes"],
+          },
+        ],
+      },
+    },
+    {
+      $set: {
+        deletedVideos: {
+          $filter: {
+            input: "$videos",
+            as: "vid",
+            cond: {
+              $not: {
+                $in: ["$$vid", "$foundVideos._id"],
+              },
+            },
+          },
+        },
+      },
+    },
+    {
+      $addFields: {
+        owner: {
+          $first: "$owner",
+        },
+        videos: "$foundVideos",
+      },
+    },
+    {
+      $unset: ["foundVideos"],
+    },
+  ]);
+
+  if (!playlist[0]) {
+    throw new ApiError(404, "No playlist found!!", ["No playlist found!!"]);
+  }
+
+  return res.status(200).json(
+    new ApiResponse(200, {
+      playlist: playlist[0],
+    })
+  );
 });
 
 const addVideoToPlaylist = asyncHandler(async (req, res) => {
