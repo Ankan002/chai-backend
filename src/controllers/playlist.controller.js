@@ -135,7 +135,7 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
       {
         $set: {
           videos: {
-            $concatArrays: ["$videos", [videoId]],
+            $concatArrays: ["$videos", [new Types.ObjectId(videoId)]],
           },
         },
       },
@@ -155,7 +155,56 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
 
 const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
   const { playlistId, videoId } = req.params;
-  // TODO: remove video from playlist
+  const { _id } = req.user;
+
+  if (!isValidObjectId(playlistId) || !isValidObjectId(videoId)) {
+    throw new ApiError(400, "Provide valid ObjectID", [
+      "Provide valid ObjectID",
+    ]);
+  }
+
+  const updatedPlaylist = await Playlist.findOneAndUpdate(
+    {
+      _id: playlistId,
+      owner: _id,
+    },
+    [
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          description: 1,
+          videos: {
+            $filter: {
+              input: "$videos",
+              as: "v",
+              cond: {
+                $ne: ["$$v", new Types.ObjectId(videoId)],
+              },
+            },
+          },
+          owner: 1,
+          createdAt: 1,
+          updatedAt: 1,
+        },
+      },
+      {
+        $set: {
+          videos: "$videos",
+        },
+      },
+    ],
+    {
+      new: true,
+    }
+  );
+
+  return res.status(200).json(
+    new ApiResponse(200, {
+      removed: true,
+      updatedPlaylist,
+    })
+  );
 });
 
 const deletePlaylist = asyncHandler(async (req, res) => {
