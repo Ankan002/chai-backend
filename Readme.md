@@ -1,24 +1,48 @@
-# chai aur backend  series 
+# Chai Backend
 
-This is a video series on backend with javascript
-- [Model link](https://app.eraser.io/workspace/YtPqZ1VogxGy1jzIDkzj?origin=share)
+![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)![Express.js](https://img.shields.io/badge/express.js-%23404d59.svg?style=for-the-badge&logo=express&logoColor=%2361DAFB)![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)![Yarn](https://img.shields.io/badge/yarn-%232C8EBB.svg?style=for-the-badge&logo=yarn&logoColor=white)![MongoDB](https://img.shields.io/badge/MongoDB-%234ea94b.svg?style=for-the-badge&logo=mongodb&logoColor=white)![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)
 
-- [Video playlist](https://www.youtube.com/watch?v=EH3vGeqeIAo&list=PLu71SKxNbfoBGh_8p_NS-ZAh6v7HhYqHW)
 
----
-# Summary of this project
+This was the backend app that was developed for the challenge given by [Hitesh Choudhary](https://github.com/hiteshchoudhary) on his [Backend Series](https://github.com/hiteshchoudhary/chai-backend).
 
-This project is a complex backend project that is built with nodejs, expressjs, mongodb, mongoose, jwt, bcrypt, and many more. This project is a complete backend project that has all the features that a backend project should have.
-We are building a complete video hosting website similar to youtube with all the features like login, signup, upload video, like, dislike, comment, reply, subscribe, unsubscribe, and many more.
+API Documentation
 
-Project uses all standard practices like JWT, bcrypt, access tokens, refresh Tokens and many more. We have spent a lot of time in building this project and we are sure that you will learn a lot from this project.
+- [Postman](https://documenter.getpostman.com/view/16985585/2s9YsRbU3c)
 
----
-Top Contributer to complete all TODOs
+NOTE: I did not host this app as of now, but maybe will in future if I build something different out of it. As of now I have created a Dockerfile and you can simply run it via docker.
 
-1. Spiderman (just sample)  [Link to Repo](https://www.youtube.com/@chaiaurcode)
+### Steps of Installation
 
---- 
-## How to contribute in this open source Project
+- Clone the GitHub repo:
 
-First, please understand that this is not your regular project to merge your PR. This repo requires you to finish all assignments that are in controller folder. We don't accept half work, please finish all controllers and then reach us out on [Discord](https://hitesh.ai/discord) or [Twitter](https://twitter.com/@hiteshdotcom) and after checking your repo, I will add link to your repo in this readme.
+```bash
+git clone https://github.com/Ankan002/chai-backend.git
+```
+
+- Change into directories:
+
+```bash
+cd chai-backend
+```
+
+- Now configure the `.env` according to `.env.sample`, also configure .env.production by just changing the `NODE_ENV` variable.
+
+- Now if you simply want to use Docker use the following command:
+
+```bash
+docker compose up
+```
+
+- Else you need to first install all the dependencies:
+
+```bash
+yarn
+```
+
+- Finally, you can simply start the app:
+
+```bash
+yarn start
+```
+
+- Now just follow the API docs and you are all set.
