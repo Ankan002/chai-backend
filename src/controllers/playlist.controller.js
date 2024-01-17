@@ -118,6 +118,39 @@ const getPlaylistById = asyncHandler(async (req, res) => {
 
 const addVideoToPlaylist = asyncHandler(async (req, res) => {
   const { playlistId, videoId } = req.params;
+  const { _id } = req.user;
+
+  if (!isValidObjectId(playlistId) || !isValidObjectId(videoId)) {
+    throw new ApiError(400, "Provide valid ObjectID", [
+      "Provide valid ObjectID",
+    ]);
+  }
+
+  const updatedPlaylist = await Playlist.findOneAndUpdate(
+    {
+      _id: playlistId,
+      owner: _id,
+    },
+    [
+      {
+        $set: {
+          videos: {
+            $concatArrays: ["$videos", [videoId]],
+          },
+        },
+      },
+    ],
+    {
+      new: true,
+    }
+  );
+
+  return res.status(200).json(
+    new ApiResponse(200, {
+      added: true,
+      updatedPlaylist,
+    })
+  );
 });
 
 const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
